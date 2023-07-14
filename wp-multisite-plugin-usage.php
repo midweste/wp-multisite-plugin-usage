@@ -7,7 +7,7 @@
  * Author:            Midweste
  * Author URI:        https://github.org/midweste/wp-multisite-plugin-usage
  * Update URI:        https://raw.githubusercontent.com/midweste/wp-multisite-plugin-usage/main/wp-multisite-plugin-usage.php
- * License:           GPL-2.0+
+ * License:           MIT
  */
 
 class MultisitePluginUsage
