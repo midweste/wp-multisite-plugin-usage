@@ -75,14 +75,14 @@ class MultisitePluginUsage
             }
             $used = true;
         } else {
-            $usage[] = '<li>None</li>';
+            $usage[] = '<li>Not activated on any site</li>';
         }
 
         $plugin_usage_html = implode('', $usage);
 
         $usage_html = <<<HTML
             <div class="multisite-plugin-usages ">
-                Active on Sites: <ul>{$plugin_usage_html}</ul>
+                Activated on: <ul>{$plugin_usage_html}</ul>
             </div>
         HTML;
         $used_class = $used ? 'used' : 'unused';
@@ -99,7 +99,11 @@ class MultisitePluginUsage
             $usage[$plugin_file] = [];
             foreach ($sites as $site) {
                 switch_to_blog($site->blog_id);
-                if (is_plugin_active($plugin_file)) {
+                // if (is_plugin_active($plugin_file)) {
+                //     $usage[$plugin_file][$site->domain] = $site;
+                // }
+                $plugins_active = get_option('active_plugins');
+                if (!empty($plugins_active) && in_array($plugin_file, $plugins_active, true)) {
                     $usage[$plugin_file][$site->domain] = $site;
                 }
                 restore_current_blog();
