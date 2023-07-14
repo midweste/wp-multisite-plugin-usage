@@ -3,7 +3,7 @@
 /*
  * Plugin Name:       Wordpress Multisite Plugin Usage
  * Plugin URI:        https://github.org/midweste/wp-multisite-plugin-usage
- * Description:       Shows site usage for WordPress plugins on multisite installations.
+ * Description:       Shows site usage for plugins on WordPress multisite network plugins page.
  * Author:            Midweste
  * Author URI:        https://github.org/midweste/wp-multisite-plugin-usage
  * Update URI:        https://raw.githubusercontent.com/midweste/wp-multisite-plugin-usage/main/wp-multisite-plugin-usage.php
@@ -18,7 +18,7 @@ class MultisitePluginUsage
     {
 
         add_action('admin_init', function () {
-            $this->usage = $this->getPluginUsage();
+            $this->usage = $this->getPluginSiteUsage();
         }, PHP_INT_MAX);
 
 
@@ -45,35 +45,39 @@ class MultisitePluginUsage
                 return $plugin_meta;
             }
 
-            $usage = [];
-            if (!empty($this->usage[$plugin_file])) {
-                foreach ($this->usage[$plugin_file] as $domain => $site) {
-                    $usage[] = sprintf('<a href="https://%s/wp-admin/plugins.php" target="_blank">%s</a>', $site->domain, $site->domain);
-                }
-            } else {
-                $usage[] = 'None';
-            }
+            $usage = $this->getPluginUsageHtml($plugin_file);
 
-            $plugin_usage_html = implode(', ', $usage);
-            $usage_html = <<<HTML
-                <div class="multisite-plugin-usages">
-                    <span class="multisite-plugin-usages-title">Active on Sites: {$plugin_usage_html}</span>
-                </div>
-            HTML;
-
-            // add requirements html to above links or by itself
-            $wrapper = sprintf('<div class="multisite-plugin-usages-wrapper">%s</div>', $usage_html);
             if (!empty($plugin_meta)) {
                 $key = array_key_last($plugin_meta);
-                $plugin_meta[$key] = $plugin_meta[$key] . $wrapper;
+                $plugin_meta[$key] = $plugin_meta[$key] . $usage;
             } else {
-                $plugin_meta['usage'] = $wrapper;
+                $plugin_meta['usage'] = $usage;
             }
             return $plugin_meta;
         }, PHP_INT_MAX, 4);
     }
 
-    public function getPluginUsage(): array
+    protected function getPluginUsageHtml(string $plugin_file): string
+    {
+        $usage = [];
+        if (!empty($this->usage[$plugin_file])) {
+            foreach ($this->usage[$plugin_file] as $domain => $site) {
+                $usage[] = sprintf('<a href="%s://%s/wp-admin/plugins.php" target="_blank">%s</a>', is_ssl() ? 'https' : 'http', $domain, $domain);
+            }
+        } else {
+            $usage[] = 'None';
+        }
+
+        $plugin_usage_html = implode(', ', $usage);
+        $usage_html = <<<HTML
+            <div class="multisite-plugin-usages">
+                <span class="multisite-plugin-usages-title">Active on Sites: {$plugin_usage_html}</span>
+            </div>
+        HTML;
+        return sprintf('<div class="multisite-plugin-usages-wrapper">%s</div>', $usage_html);
+    }
+
+    public function getPluginSiteUsage(): array
     {
         $usage = [];
         $plugins = get_plugins();
