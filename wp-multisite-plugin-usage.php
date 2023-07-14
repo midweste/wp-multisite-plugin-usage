@@ -35,7 +35,15 @@ class MultisitePluginUsage
                     -webkit-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.1);
                     -moz-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.1);
                     box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.1);
-
+                }
+                .multisite-plugin-usages-wrapper.used {
+                    border-left: 4px solid rgb(179, 45, 46);
+                }
+                .multisite-plugin-usages-wrapper.unused {
+                    border-left: 4px solid rgb(0, 160, 210);
+                }
+                .multisite-plugin-usages-wrapper ul li {
+                    margin: 0;
                 }
             ');
         }, PHP_INT_MAX);
@@ -60,21 +68,25 @@ class MultisitePluginUsage
     protected function getPluginUsageHtml(string $plugin_file): string
     {
         $usage = [];
+        $used = false;
         if (!empty($this->usage[$plugin_file])) {
             foreach ($this->usage[$plugin_file] as $domain => $site) {
-                $usage[] = sprintf('<a href="%s://%s/wp-admin/plugins.php" target="_blank">%s</a>', is_ssl() ? 'https' : 'http', $domain, $domain);
+                $usage[] = sprintf('<li><a href="%s://%s/wp-admin/plugins.php" target="_blank">%s</a></li>', is_ssl() ? 'https' : 'http', $domain, $domain);
             }
+            $used = true;
         } else {
-            $usage[] = 'None';
+            $usage[] = '<li>None</li>';
         }
 
-        $plugin_usage_html = implode(', ', $usage);
+        $plugin_usage_html = implode('', $usage);
+
         $usage_html = <<<HTML
-            <div class="multisite-plugin-usages">
-                <span class="multisite-plugin-usages-title">Active on Sites: {$plugin_usage_html}</span>
+            <div class="multisite-plugin-usages ">
+                Active on Sites: <ul>{$plugin_usage_html}</ul>
             </div>
         HTML;
-        return sprintf('<div class="multisite-plugin-usages-wrapper">%s</div>', $usage_html);
+        $used_class = $used ? 'used' : 'unused';
+        return sprintf('<div class="multisite-plugin-usages-wrapper %s">%s</div>', $used_class, $usage_html);
     }
 
     public function getPluginSiteUsage(): array
@@ -82,6 +94,7 @@ class MultisitePluginUsage
         $usage = [];
         $plugins = get_plugins();
         $sites = get_sites();
+        ksort($sites);
         foreach ($plugins as $plugin_file => $plugin) {
             $usage[$plugin_file] = [];
             foreach ($sites as $site) {
