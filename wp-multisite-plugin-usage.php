@@ -5,6 +5,7 @@
  * Plugin URI:        https://github.org/midweste/wp-multisite-plugin-usage
  * Description:       Shows site usage for plugins on WordPress multisite network plugins page.
  * Author:            Midweste
+ * Version:           1.1.0
  * Author URI:        https://github.org/midweste/wp-multisite-plugin-usage
  * Update URI:        https://raw.githubusercontent.com/midweste/wp-multisite-plugin-usage/main/wp-multisite-plugin-usage.php
  * License:           MIT
